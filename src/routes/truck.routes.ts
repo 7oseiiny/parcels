@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { TruckService } from '../services/truck.service';
+import { Truck } from '../models/truck.model';
 
 const router = Router();
 
@@ -49,6 +50,15 @@ router.get('/:truckId/summary', async (req: Request, res: Response) => {
     const summary = await TruckService.getTruckSummary(truckId);
     if (!summary) return res.status(404).json({ message: 'Truck not found' });
     res.json(summary);
+  } catch (error) {
+    res.status(500).json({ message: (error instanceof Error ? error.message : 'Unknown error') });
+  }
+});
+
+router.delete('/', async (req: Request, res: Response) => {
+  try {
+    await Truck.deleteMany({});
+    res.json({ message: 'All parcels deleted' });
   } catch (error) {
     res.status(500).json({ message: (error instanceof Error ? error.message : 'Unknown error') });
   }
