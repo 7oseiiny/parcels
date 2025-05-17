@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { TruckService } from '../src/services/truck.service';
-import { Parcel } from '../src/models/parcel.model';
+import { ParcelService } from '../src/services/parcel.service';
 
 beforeAll(async () => {
   await mongoose.connect('mongodb+srv://admin:itiAmazon@cluster0.ke6bvtv.mongodb.net/parcels-test');
@@ -29,7 +29,7 @@ describe('TruckService', () => {
   });
 
   it('should get all trucks', async () => {
-    await TruckService.createTruck(); 
+    await TruckService.createTruck();
     const trucks = await TruckService.getTruck();
     expect(Array.isArray(trucks)).toBe(true);
     expect(trucks.length).toBeGreaterThan(0);
@@ -38,8 +38,7 @@ describe('TruckService', () => {
   it('should load a parcel into a truck', async () => {
     const truck = await TruckService.createTruck();
     truckId = (truck._id as any).toString();
-    const parcel = new Parcel({ weight: 5 });
-    await parcel.save(); 
+    const parcel = await ParcelService.createParcel(5);
     parcelId = (parcel._id as any).toString();
     const updatedTruck = await TruckService.loadParcel(truckId, parcelId);
     expect(updatedTruck).not.toBeNull();
@@ -56,11 +55,8 @@ describe('TruckService', () => {
   it('should unload a parcel from a truck', async () => {
     const truck = await TruckService.createTruck();
     truckId = (truck._id as any).toString();
-    const parcel = new Parcel({ weight: 7 });
-    await parcel.save();
+    const parcel = await ParcelService.createParcel(7);
     parcelId = (parcel._id as any).toString();
-    const foundParcel = await Parcel.findById(parcelId);
-    expect(foundParcel).not.toBeNull();
     await TruckService.loadParcel(truckId, parcelId);
     const updatedTruck = await TruckService.unloadParcel(truckId, parcelId);
     expect(updatedTruck).not.toBeNull();
@@ -77,12 +73,9 @@ describe('TruckService', () => {
   it('should get truck summary', async () => {
     const truck = await TruckService.createTruck();
     truckId = (truck._id as any).toString();
-    const parcel = new Parcel({ weight: 10 });
-    await parcel.save(); 
+    const parcel = await ParcelService.createParcel(10);
     parcelId = (parcel._id as any).toString();
-    const foundParcel = await Parcel.findById(parcelId);
-    expect(foundParcel).not.toBeNull();
-    await TruckService.loadParcel(truckId, parcelId); 
+    await TruckService.loadParcel(truckId, parcelId);
     const summary = await TruckService.getTruckSummary(truckId);
     expect(summary).not.toBeNull();
     expect(summary).toHaveProperty('truckId');
