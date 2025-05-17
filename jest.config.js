@@ -9,5 +9,7 @@ module.exports = {
   transform: {
     ...tsJestTransformCfg,
   },
+  maxWorkers: 1, // تشغيل اختبار واحد فقط في كل مرة (توالي)
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   testMatch: ['**/__tests__/**/*.test.ts']
 };
